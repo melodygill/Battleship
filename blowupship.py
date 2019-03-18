@@ -1,14 +1,15 @@
 # battleship.py
 import random
 #To do:
-#Turn off testing flag
+#Turn off testing flag before playing
 #Instruction function
-#Random computer ship placement
 #Better user input checking throughout
 #Consider using lists to show which ships on each side have already been sunk
 #Keep computer and player from shooting at same square
 #Input checking for shooting
 #Let player know when they've sunk an entire ship
+#Better computer strategy
+#Report computer fire as "a3" rather than "1 3"
 
 # Constants
 BLANK = "_"
@@ -23,7 +24,7 @@ CRUISERLENGTH = 3
 SUBLENGTH = 3
 DESTROYERLENGTH = 2
 
-DEBUGGING = False
+DEBUGGING = True
 
 # *** Functions ***
 
@@ -105,8 +106,6 @@ def checkforwinner(playerships, computerships):
     return "None"
 
 def blankboard(board):
-    x = 0
-    y = 0
     for x in range (1, 11):
         for y in range (1, 11):
             board[x,y] = BLANK
@@ -149,16 +148,46 @@ def doubledrawboard(board1, board2):
         print("")
 
 def computersetupships(board):
-    for q in range(4,9):
-        board[q,9] = "A"
-    for i in range(3,7):
-        board[2,i] = "B"
-    for c in range(6,9):
-        board[c,4] = "C"
-    for s in range(5,8):
-        board[4,s] = "S"
-    for d in range(5,7):
-        board[d,1] = "D"
+    placeship(board, CARRIER, CARRIERLENGTH)
+    placeship(board, BATTLESHIP, BATTLESHIPLENGTH)
+    placeship(board, CRUISER, CRUISERLENGTH)
+    placeship(board, SUB, SUBLENGTH);
+    placeship(board, DESTROYER, DESTROYERLENGTH)
+    drawboard(board)
+    return board
+
+def placeship(board, symbol, length):
+    #Randomly choose vertical (0) or horizontal (1) orientation
+    ori = random.randint(0,1)
+    goodplacement = False
+    overlap = False
+
+    while (goodplacement == False or overlap == True):
+        #Randomly choose starting coordinates
+        goodplacement = False
+        overlap = False
+        startx = random.randint(1,10)
+        starty = random.randint(1,10)
+        #If the ship fits in the board, make sure it doesn't overlap with other ships
+        if (startx + length <= 10) and (starty + length <= 10):
+            goodplacement = True
+            if (ori == 1):
+                for i in range(startx, startx+length):
+                    if board[i,starty] != BLANK:
+                        overlap = True
+            elif (ori == 0):
+                for i in range(starty, starty+length):
+                    if board[startx, i] != BLANK:
+                        overlap = True
+
+    #Put ship on board
+    if ori == 1:
+        for x in range (startx, startx+length):
+            board[x, starty] = symbol
+    elif ori == 0:
+        for y in range (starty, starty+length):
+            board[startx, y] = symbol
+
     return board
 
 def playersetupships(board):
@@ -330,7 +359,7 @@ def getplayercoord(string):
 # Introduce the game
 instructions()
 
-# Create the four arrays to be used to track what's going on in the game
+# Create the four dictionaries to be used to track what's going on in the game
 computerships = {} #Shows computer's ships and any hits on them
 playerships = {} #Shows player's ships and any hits on them
 hitsmissesoncomputer = {} #Shows shots fired by player on computer and any hits/misses
