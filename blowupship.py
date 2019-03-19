@@ -1,5 +1,10 @@
-# battleship.py
-import random
+
+# ****************************************************************
+# blowupship.py
+# by Melody Gill
+# Text-based Battleship game
+# ****************************************************************
+
 #To do:
 #Turn off testing flag before playing
 #Instruction function
@@ -9,7 +14,8 @@ import random
 #Input checking for shooting
 #Let player know when they've sunk an entire ship
 #Better computer strategy
-#Report computer fire as "a3" rather than "1 3"
+
+import random
 
 # Constants
 BLANK = "_"
@@ -24,7 +30,7 @@ CRUISERLENGTH = 3
 SUBLENGTH = 3
 DESTROYERLENGTH = 2
 
-DEBUGGING = True
+DEBUGGING = False
 
 # *** Functions ***
 
@@ -55,9 +61,10 @@ def computershoots(playerships, hitsmissesonplayer):
         if hitsmissesonplayer[x,y][-1] != "S":
             goodshot = True
     if playerships[x,y] == "_":
+        
         hitsmissesonplayer[x,y] = "_S"
-        print("The computer shot and missed at:")
-        print(x,y)
+        print("The computer shot and missed at: ", end = "")
+        print(getcomputercoord(x) + str(y))
     else:
         hitsmissesonplayer[x,y] = playerships[x,y] + "S"
         playerships[x,y] = playerships[x,y] + "S"
@@ -153,7 +160,6 @@ def computersetupships(board):
     placeship(board, CRUISER, CRUISERLENGTH)
     placeship(board, SUB, SUBLENGTH);
     placeship(board, DESTROYER, DESTROYERLENGTH)
-    drawboard(board)
     return board
 
 def placeship(board, symbol, length):
@@ -190,113 +196,36 @@ def placeship(board, symbol, length):
 
     return board
 
+def placeplayership(shipname, shiplength, board, symbol):
+    drawboard(board)
+    goodcoo = False
+    while goodcoo == False:
+        print("Enter coordinates for the beginning of the " + shipname + ".  It will be " +
+              str(shiplength) + " squares long.")
+        coo = input()
+        startx, starty = getplayercoord(coo)
+        print("Do you want your " + shipname + " placed (v)ertically or (h)orizontally?")
+        vorh = input()
+        if vorh == "v" or vorh == "V":
+            endx = startx
+            endy = starty + shiplength - 1
+        elif vorh == "h" or vorh == "H":
+            endx = startx + shiplength - 1
+            endy = starty
+        board, isitok = checkshipplacement(board, symbol, startx, starty, endx, endy)
+        if isitok == "OUT":
+            print("These coordinates result in the " + shipname + " being off the board!")
+        if isitok == "OVERLAP":
+            print("These coordinates result in the " + shipname + " overlapping another ship!")
+        if isitok == "OK":
+            goodcoo = True
+
 def playersetupships(board):
-    drawboard(board)
-    goodcoo = False
-    while goodcoo == False:
-        print("Enter coordinates for the beginning of the aircraft carrier.  It will be " + str(CARRIERLENGTH) + " squares long.")
-        coo = input()
-        startx, starty = getplayercoord(coo)
-        print("Do you want your carrier placed (v)ertically or (h)orizontally?")
-        vorh = input()
-        if vorh == "v" or vorh == "V":
-            endx = startx
-            endy = starty + CARRIERLENGTH - 1
-        elif vorh == "h" or vorh == "H":
-            endx = startx + CARRIERLENGTH - 1
-            endy = starty
-        board, isitok = checkshipplacement(board, CARRIER, startx, starty, endx, endy)
-        if isitok == "OUT":
-            print("These coordinates result in the carrier being off the board!")
-        if isitok == "OVERLAP":
-            print("These coordinates result in the carrier overlapping another ship!")
-        if isitok == "OK":
-            goodcoo = True
-    drawboard(board)
-    goodcoo = False
-    while goodcoo == False:
-        print("Enter coordinates for the beginning of the battleship.  It will be " + str(BATTLESHIPLENGTH) + " squares long.")
-        coo = input()
-        startx, starty = getplayercoord(coo)
-        print("Do you want your battleship placed (v)ertically or (h)orizontally?")
-        vorh = input()
-        if vorh == "v" or vorh == "V":
-            endx = startx
-            endy = starty + BATTLESHIPLENGTH - 1
-        elif vorh == "h" or vorh == "H":
-            endx = startx + BATTLESHIPLENGTH - 1
-            endy = starty
-        board, isitok = checkshipplacement(board, BATTLESHIP, startx, starty, endx, endy)
-        if isitok == "OUT":
-            print("These coordinates result in the battleship being off the board!")
-        if isitok == "OVERLAP":
-            print("These coordinates result in the battleship overlapping another ship!")
-        if isitok == "OK":
-            goodcoo = True
-    drawboard(board)
-    goodcoo = False
-    while goodcoo == False:
-        print("Enter coordinates for the beginning of the cruiser.  It will be " + str(CRUISERLENGTH) + " squares long.")
-        coo = input()
-        startx, starty = getplayercoord(coo)
-        print("Do you want your cruiser placed (v)ertically or (h)orizontally?")
-        vorh = input()
-        if vorh == "v" or vorh == "V":
-            endx = startx
-            endy = starty + CRUISERLENGTH - 1
-        elif vorh == "h" or vorh == "H":
-            endx = startx + CRUISERLENGTH - 1
-            endy = starty
-        board, isitok = checkshipplacement(board, CRUISER, startx, starty, endx, endy)
-        if isitok == "OUT":
-            print("These coordinates result in the cruiser being off the board!")
-        if isitok == "OVERLAP":
-            print("These coordinates result in the cruiser overlapping another ship!")
-        if isitok == "OK":
-            goodcoo = True
-    drawboard(board)
-    goodcoo = False
-    while goodcoo == False:
-        print("Enter coordinates for the beginning of the submarine.  It will be " + str(SUBLENGTH) + " squares long.")
-        coo = input()
-        startx, starty = getplayercoord(coo)
-        print("Do you want your submarine placed (v)ertically or (h)orizontally?")
-        vorh = input()
-        if vorh == "v" or vorh == "V":
-            endx = startx
-            endy = starty + SUBLENGTH - 1
-        elif vorh == "h" or vorh == "H":
-            endx = startx + SUBLENGTH - 1
-            endy = starty
-        board, isitok = checkshipplacement(board, SUB, startx, starty, endx, endy)
-        if isitok == "OUT":
-            print("These coordinates result in the submarine being off the board!")
-        if isitok == "OVERLAP":
-            print("These coordinates result in the submarine overlapping another ship!")
-        if isitok == "OK":
-            goodcoo = True
-    drawboard(board)
-    goodcoo = False
-    while goodcoo == False:
-        print("Enter coordinates for the beginning of the destroyer.  It will be " + str(DESTROYERLENGTH) + " squares long.")
-        coo = input()
-        startx, starty = getplayercoord(coo)
-        print("Do you want your destroyer placed (v)ertically or (h)orizontally?")
-        vorh = input()
-        if vorh == "v" or vorh == "V":
-            endx = startx
-            endy = starty + DESTROYERLENGTH - 1
-        elif vorh == "h" or vorh == "H":
-            endx = startx + DESTROYERLENGTH - 1
-            endy = starty
-        board, isitok = checkshipplacement(board, DESTROYER, startx, starty, endx, endy)
-        if isitok == "OUT":
-            print("These coordinates result in the destroyer being off the board!")
-        if isitok == "OVERLAP":
-            print("These coordinates result in the destroyer overlapping another ship!")
-        if isitok == "OK":
-            goodcoo = True
-    drawboard(board)
+    placeplayership("carrier", CARRIERLENGTH, board, CARRIER)
+    placeplayership("battleship", BATTLESHIPLENGTH, board, BATTLESHIP)
+    placeplayership("cruiser", CRUISERLENGTH, board, CRUISER)
+    placeplayership("submarine", SUBLENGTH, board, SUB)
+    placeplayership("destroyer", DESTROYERLENGTH, board, DESTROYER)
     return board
 
 def checkshipplacement(board, ID, startx, starty, endx, endy):
@@ -346,11 +275,16 @@ def checkshipplacement(board, ID, startx, starty, endx, endy):
     return board, "OK" 
    
 def getplayercoord(string):
+    #Example change: A4 -> 1, 4
     y = string[0].lower()
     x = int(string[1:])
     y = ord(y)
     y = y-96
     return x, y
+
+def getcomputercoord(x):
+    x = chr(x+96)
+    return x.upper()
       
 # *** Main Function ***
 # *** Main Function ***
